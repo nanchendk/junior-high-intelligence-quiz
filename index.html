@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="國中新生智力測驗模擬題庫：語文、數量、圖形推理，共30題。" />
+  <title>國中新生智力測驗模擬題庫</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef4ff;
+      --text: #1f2937;
+      --muted: #667085;
+      --primary: #3157c8;
+      --primary-dark: #203e9c;
+      --success: #147a52;
+      --danger: #c23b3b;
+      --border: #d8e0ed;
+      --shadow: 0 12px 32px rgba(31, 41, 55, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #e7efff, transparent 35%),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.65;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease, background .15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: .55; transform: none; }
+
+    .app {
+      width: min(960px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(216,224,237,.85);
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(31, 41, 55, .08);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: clamp(16px, 3.6vw, 20px);
+    }
+
+    .timer {
+      min-width: 94px;
+      padding: 7px 12px;
+      color: #fff;
+      background: var(--primary);
+      border-radius: 999px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: .5px;
+    }
+
+    .timer.warning { background: var(--danger); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 4vw, 34px);
+    }
+
+    .hero {
+      text-align: center;
+      padding: 18px 4px 4px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 7vw, 48px);
+      line-height: 1.18;
+    }
+
+    .hero p {
+      max-width: 700px;
+      margin: 0 auto 22px;
+      color: var(--muted);
+    }
+
+    .notice {
+      margin: 22px 0;
+      padding: 14px 16px;
+      background: #fff8e8;
+      border: 1px solid #efd79d;
+      border-radius: 13px;
+      text-align: left;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .meta-item {
+      padding: 14px 10px;
+      background: var(--surface-2);
+      border-radius: 13px;
+      text-align: center;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 21px;
+    }
+
+    .field {
+      max-width: 420px;
+      margin: 22px auto;
+      text-align: left;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(49, 87, 200, .12);
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 46px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 800;
+    }
+
+    .btn-primary { color: #fff; background: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { color: var(--primary-dark); background: #e9efff; }
+    .btn-danger { color: #fff; background: var(--danger); }
+
+    .quiz-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 15px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .quiz-head h2 { margin: 0; }
+    .quiz-head p { margin: 2px 0 0; color: var(--muted); }
+
+    .progress-wrap {
+      min-width: 180px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress {
+      height: 10px;
+      margin-top: 6px;
+      overflow: hidden;
+      background: #e8edf5;
+      border-radius: 999px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      border-radius: inherit;
+      transition: width .25s ease;
+    }
+
+    .section-label {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 5px 11px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      color: var(--primary-dark);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .question-number {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .question-title {
+      margin: 7px 0 18px;
+      font-size: clamp(21px, 4.5vw, 28px);
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
+    .question-table {
+      width: 100%;
+      margin: 12px 0 20px;
+      border-collapse: collapse;
+    }
+
+    .question-table th,
+    .question-table td {
+      padding: 9px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .options {
+      display: grid;
+      gap: 11px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 16px;
+      color: var(--text);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      text-align: left;
+    }
+
+    .option:hover {
+      border-color: #95a9e9;
+      background: #f8faff;
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: #edf2ff;
+      box-shadow: 0 0 0 3px rgba(49, 87, 200, .10);
+    }
+
+    .option-letter {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: #fff;
+      background: #8793aa;
+      border-radius: 50%;
+      font-weight: 800;
+    }
+
+    .option.selected .option-letter { background: var(--primary); }
+
+    .nav-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .nav-actions .btn { min-width: 112px; }
+
+    .question-map {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 7px;
+      margin-top: 24px;
+    }
+
+    .map-btn {
+      aspect-ratio: 1;
+      border-radius: 9px;
+      color: var(--muted);
+      background: #edf1f7;
+      font-weight: 700;
+    }
+
+    .map-btn.answered { color: #fff; background: var(--success); }
+    .map-btn.current { outline: 3px solid rgba(49,87,200,.28); }
+
+    .result-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .score-circle {
+      display: grid;
+      place-items: center;
+      width: 150px;
+      height: 150px;
+      margin: 16px auto;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 12px solid #d8e3ff;
+    }
+
+    .score-circle strong {
+      display: block;
+      font-size: 42px;
+      line-height: 1;
+    }
+
+    .score-circle span { color: var(--muted); }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .score-box {
+      padding: 16px;
+      background: #f7f9fc;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      text-align: center;
+    }
+
+    .score-box strong {
+      display: block;
+      font-size: 26px;
+    }
+
+    .review-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .review-item {
+      padding: 17px;
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--success);
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .review-item.wrong { border-left-color: var(--danger); }
+
+    .review-item h4 { margin: 0 0 8px; }
+    .review-item p { margin: 5px 0; }
+    .answer-ok { color: var(--success); font-weight: 800; }
+    .answer-wrong { color: var(--danger); font-weight: 800; }
+
+    .hidden { display: none !important; }
+
+    footer {
+      padding: 22px 8px 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      .app { width: min(100% - 18px, 960px); padding-top: 10px; }
+      .topbar { padding: 10px 12px; }
+      .meta-grid, .score-grid { grid-template-columns: 1fr; }
+      .quiz-head { grid-template-columns: 1fr; }
+      .progress-wrap { text-align: left; }
+      .question-map { grid-template-columns: repeat(6, 1fr); }
+      .nav-actions { position: sticky; bottom: 8px; padding: 10px; background: rgba(255,255,255,.94); border-radius: 14px; box-shadow: 0 8px 24px rgba(31,41,55,.12); backdrop-filter: blur(8px); }
+      .nav-actions .btn { min-width: 0; flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">🧠 國中新生智力測驗</div>
+      <div id="timer" class="timer hidden" aria-live="polite">25:00</div>
+    </div>
+
+    <section id="startScreen" class="card">
+      <div class="hero">
+        <h1>國中新生智力測驗<br>模擬題庫 V1</h1>
+        <p>包含語文推理、數量推理及圖形與空間推理。完成後會自動計分，並顯示各類表現與錯題解析。</p>
+      </div>
+
+      <div class="notice">
+        <strong>重要說明：</strong>本網站為非官方模擬練習，不是景美國中考古題，也不能換算正式 IQ。建議第一次作答不查資料，觀察孩子的真實作答狀況。
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-item"><strong>30 題</strong><span>三類推理題</span></div>
+        <div class="meta-item"><strong>25 分鐘</strong><span>時間到自動交卷</span></div>
+        <div class="meta-item"><strong>自動分析</strong><span>分項成績與解析</span></div>
+      </div>
+
+      <div class="field">
+        <label for="studentName">作答者姓名（可不填）</label>
+        <input id="studentName" type="text" maxlength="20" placeholder="例如：又緁" autocomplete="name" />
+      </div>
+
+      <div style="text-align:center">
+        <button id="startBtn" class="btn btn-primary">開始測驗</button>
+      </div>
+    </section>
+
+    <section id="quizScreen" class="card hidden">
+      <div class="quiz-head">
+        <div>
+          <h2 id="quizTitle">開始作答</h2>
+          <p>可使用下方題號快速切換，綠色代表已作答。</p>
+        </div>
+        <div class="progress-wrap">
+          <span id="progressText">已完成 0 / 30</span>
+          <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+        </div>
+      </div>
+
+      <div id="questionContainer"></div>
+
+      <div class="nav-actions">
+        <button id="prevBtn" class="btn btn-secondary">上一題</button>
+        <button id="nextBtn" class="btn btn-primary">下一題</button>
+      </div>
+
+      <div id="questionMap" class="question-map" aria-label="題號導覽"></div>
+    </section>
+
+    <section id="resultScreen" class="card hidden">
+      <div class="result-header">
+        <h2 id="resultTitle">測驗完成</h2>
+        <div class="score-circle">
+          <div><strong id="totalScore">0</strong><span>／30 題</span></div>
+        </div>
+        <p id="resultComment"></p>
+      </div>
+
+      <div class="score-grid">
+        <div class="score-box"><span>語文推理</span><strong id="verbalScore">0/10</strong></div>
+        <div class="score-box"><span>數量推理</span><strong id="numberScore">0/10</strong></div>
+        <div class="score-box"><span>圖形空間</span><strong id="visualScore">0/10</strong></div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center">
+        <button id="reviewWrongBtn" class="btn btn-secondary">只看錯題</button>
+        <button id="reviewAllBtn" class="btn btn-secondary">查看全部解析</button>
+        <button id="restartBtn" class="btn btn-primary">重新測驗</button>
+      </div>
+
+      <div id="reviewList" class="review-list"></div>
+    </section>
+
+    <footer>
+      非官方模擬練習｜資料僅儲存在目前瀏覽器，不會上傳伺服器
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    const questions = [
+      { category:"語文推理", title:"「醫生」對「醫院」，如同「老師」對：", options:["書本","學校","學生","黑板"], answer:1, explanation:"醫院是醫生主要工作的場所；學校是老師主要工作的場所。" },
+      { category:"語文推理", title:"「魚」對「水」，如同「鳥」對：", options:["天空","羽毛","鳥巢","樹木"], answer:0, explanation:"魚主要在水中活動，鳥主要在天空中飛行。" },
+      { category:"語文推理", title:"下列哪一組詞語的關係與其他三組不同？", options:["快樂—高興","寒冷—冰冷","美麗—漂亮","勇敢—害怕"], answer:3, explanation:"前三組是近義詞；「勇敢」與「害怕」不是近義詞。" },
+      { category:"語文推理", title:"下列哪一個和其他三個不同類？", options:["鋼琴","小提琴","長笛","麥克風"], answer:3, explanation:"鋼琴、小提琴、長笛都是樂器；麥克風是收音設備。" },
+      { category:"語文推理", title:"「幼苗」長大後可能成為「大樹」，那麼「幼犬」長大後會成為：", options:["小狗","成犬","狼","老虎"], answer:1, explanation:"幼犬長大後是成犬。" },
+      { category:"語文推理", title:"所有玫瑰都是花，有些花是紅色的。根據上述敘述，下列何者一定正確？", options:["所有玫瑰都是紅色的","所有紅色的花都是玫瑰","玫瑰屬於花的一種","沒有玫瑰是紅色的"], answer:2, explanation:"題目只保證所有玫瑰都屬於花，無法確定玫瑰是否為紅色。" },
+      { category:"語文推理", title:"小華比小美高，小美比小安高。誰最高？", options:["小華","小美","小安","無法判斷"], answer:0, explanation:"依遞移關係：小華＞小美＞小安。" },
+      { category:"語文推理", title:"春天：溫暖\n夏天：炎熱\n秋天：涼爽\n冬天：？", options:["潮濕","寒冷","明亮","乾淨"], answer:1, explanation:"四季常見氣候特徵中，冬天對應寒冷。" },
+      { category:"語文推理", title:"「下大雨」最可能造成下列哪一種結果？", options:["地面積水","太陽更大","天空沒有雲","氣溫一定升高"], answer:0, explanation:"大雨最直接且合理的結果是地面積水。" },
+      { category:"語文推理", title:"班上每一位籃球隊員都必須穿運動鞋。小明沒有穿運動鞋，可以確定：", options:["小明一定不會打籃球","小明一定不是籃球隊員","小明一定是足球隊員","小明今天忘了帶鞋"], answer:1, explanation:"若是籃球隊員就必須穿運動鞋；小明沒穿，所以不符合籃球隊員條件。" },
+
+      { category:"數量推理", title:"2、4、6、8、？", options:["9","10","11","12"], answer:1, explanation:"每次加 2，所以下一個數是 10。" },
+      { category:"數量推理", title:"3、6、12、24、？", options:["30","36","42","48"], answer:3, explanation:"每次乘以 2，所以下一個數是 48。" },
+      { category:"數量推理", title:"1、4、9、16、？", options:["20","24","25","36"], answer:2, explanation:"依序是 1²、2²、3²、4²，下一個是 5²＝25。" },
+      { category:"數量推理", title:"20、17、14、11、？", options:["7","8","9","10"], answer:1, explanation:"每次減 3，所以下一個數是 8。" },
+      { category:"數量推理", title:"2、5、4、7、6、9、？", options:["7","8","10","11"], answer:1, explanation:"奇數位置為 2、4、6、8；偶數位置為 5、7、9。" },
+      { category:"數量推理", title:"如果 3 支鉛筆共 18 元，按照相同價格，5 支鉛筆共多少元？", options:["25 元","28 元","30 元","36 元"], answer:2, explanation:"每支 18÷3＝6 元；5 支為 6×5＝30 元。" },
+      { category:"數量推理", title:"4：16，如同 5：？", options:["10","20","25","30"], answer:2, explanation:"16 是 4 的平方，因此 5 對應 5²＝25。" },
+      { category:"數量推理", title:"如果：\n2＋3＝10\n3＋4＝21\n依照相同規律，4＋5＝？", options:["9","20","32","36"], answer:3, explanation:"規律為（兩數相加）×第一個數。4＋5：9×4＝36。" },
+      { category:"數量推理", title:"每一列第三個數字都是前兩個數字相加的結果。", table:[["第一個","第二個","第三個"],["2","5","7"],["4","6","10"],["7","8","？"]], options:["13","14","15","16"], answer:2, explanation:"7＋8＝15。" },
+      { category:"數量推理", title:"現在是上午 9 點 35 分，再過 50 分鐘是：", options:["上午 10 點 15 分","上午 10 點 25 分","上午 10 點 35 分","上午 11 點 25 分"], answer:1, explanation:"9:35 加 25 分為 10:00，再加 25 分為 10:25。" },
+
+      { category:"圖形與空間推理", title:"○　●　○　●　○　？", options:["○","●","△","■"], answer:1, explanation:"空心圓與實心圓交替，所以下一個是實心圓。" },
+      { category:"圖形與空間推理", title:"△　□　○　△　□　？", options:["△","□","○","●"], answer:2, explanation:"依 △、□、○ 三個圖形循環。" },
+      { category:"圖形與空間推理", title:"○\n○○\n○○○\n下一組應為：", options:["○○","○○○","○○○○","○○○○○"], answer:2, explanation:"每一組增加一個圓，下一組是四個圓。" },
+      { category:"圖形與空間推理", title:"↑　→　↓　←　？", options:["↑","→","↓","←"], answer:0, explanation:"箭頭每次順時針旋轉 90 度，下一個回到向上。" },
+      { category:"圖形與空間推理", title:"□　■　□　■　？", options:["□","■","△","●"], answer:0, explanation:"空心方形與實心方形交替。" },
+      { category:"圖形與空間推理", title:"觀察下表，問號處應放入哪個圖形？", table:[["第1格","第2格","第3格"],["○","○○","○○○"],["△","△△","△△△"],["□","□□","？"]], options:["□","□□","□□□","□□□□"], answer:2, explanation:"每列圖形數量依序為 1、2、3，故應為三個方形。" },
+      { category:"圖形與空間推理", title:"○ → ●\n□ → ■\n△ → ？", options:["▲","△","■","◆"], answer:0, explanation:"規律是將空心圖形變成同形狀的實心圖形。" },
+      { category:"圖形與空間推理", title:"●○○\n○●○\n○○●\n黑點的位置變化是：", options:["由右向左移動","由左上往右下移動","一直停在中央","每次增加一個黑點"], answer:1, explanation:"黑點依序位於左上、中央、右下。" },
+      { category:"圖形與空間推理", title:"兩個相同的直角等腰三角形，沿著斜邊拼合，最可能組合成：", options:["圓形","正方形","星形","橢圓形"], answer:1, explanation:"兩個相同的直角等腰三角形沿斜邊拼合，可形成正方形。" },
+      { category:"圖形與空間推理", title:"一個箭頭原本朝上，順時針旋轉 90 度後，會朝向：", options:["上","下","左","右"], answer:3, explanation:"朝上的箭頭順時針轉 90 度會朝右。" }
+    ];
+
+    const state = {
+      current: 0,
+      answers: Array(questions.length).fill(null),
+      remainingSeconds: 25 * 60,
+      timerId: null,
+      startedAt: null,
+      studentName: ""
+    };
+
+    const startScreen = document.getElementById("startScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    const timerEl = document.getElementById("timer");
+    const questionContainer = document.getElementById("questionContainer");
+    const questionMap = document.getElementById("questionMap");
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function startQuiz() {
+      state.studentName = document.getElementById("studentName").value.trim();
+      state.current = 0;
+      state.answers = Array(questions.length).fill(null);
+      state.remainingSeconds = 25 * 60;
+      state.startedAt = Date.now();
+
+      startScreen.classList.add("hidden");
+      resultScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+      timerEl.classList.remove("hidden");
+
+      buildQuestionMap();
+      renderQuestion();
+      updateTimer();
+      clearInterval(state.timerId);
+      state.timerId = setInterval(() => {
+        state.remainingSeconds -= 1;
+        updateTimer();
+        if (state.remainingSeconds <= 0) {
+          clearInterval(state.timerId);
+          submitQuiz(true);
+        }
+      }, 1000);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateTimer() {
+      const seconds = Math.max(0, state.remainingSeconds);
+      const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+      const ss = String(seconds % 60).padStart(2, "0");
+      timerEl.textContent = `${mm}:${ss}`;
+      timerEl.classList.toggle("warning", seconds <= 300);
+    }
+
+    function buildQuestionMap() {
+      questionMap.innerHTML = "";
+      questions.forEach((_, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "map-btn";
+        btn.textContent = index + 1;
+        btn.setAttribute("aria-label", `前往第 ${index + 1} 題`);
+        btn.addEventListener("click", () => {
+          state.current = index;
+          renderQuestion();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        questionMap.appendChild(btn);
+      });
+    }
+
+    function renderQuestion() {
+      const q = questions[state.current];
+      const letters = ["A", "B", "C", "D"];
+      let tableHtml = "";
+
+      if (q.table) {
+        tableHtml = `<table class="question-table"><tbody>${q.table.map((row, rowIndex) =>
+          `<tr>${row.map(cell => rowIndex === 0
+            ? `<th>${escapeHtml(cell)}</th>`
+            : `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`
+        ).join("")}</tbody></table>`;
+      }
+
+      questionContainer.innerHTML = `
+        <span class="section-label">${escapeHtml(q.category)}</span>
+        <div class="question-number">第 ${state.current + 1} 題／共 ${questions.length} 題</div>
+        <h3 class="question-title">${escapeHtml(q.title)}</h3>
+        ${tableHtml}
+        <div class="options">
+          ${q.options.map((option, index) => `
+            <button type="button" class="option ${state.answers[state.current] === index ? "selected" : ""}" data-index="${index}">
+              <span class="option-letter">${letters[index]}</span>
+              <span>${escapeHtml(option)}</span>
+            </button>
+          `).join("")}
+        </div>
+      `;
+
+      questionContainer.querySelectorAll(".option").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.answers[state.current] = Number(btn.dataset.index);
+          renderQuestion();
+        });
+      });
+
+      prevBtn.disabled = state.current === 0;
+      nextBtn.textContent = state.current === questions.length - 1 ? "交卷" : "下一題";
+
+      updateProgress();
+      updateMap();
+    }
+
+    function updateProgress() {
+      const answered = state.answers.filter(answer => answer !== null).length;
+      progressText.textContent = `已完成 ${answered} / ${questions.length}`;
+      progressBar.style.width = `${answered / questions.length * 100}%`;
+    }
+
+    function updateMap() {
+      [...questionMap.children].forEach((btn, index) => {
+        btn.classList.toggle("answered", state.answers[index] !== null);
+        btn.classList.toggle("current", index === state.current);
+      });
+    }
+
+    function goPrevious() {
+      if (state.current > 0) {
+        state.current -= 1;
+        renderQuestion();
+      }
+    }
+
+    function goNext() {
+      if (state.current < questions.length - 1) {
+        state.current += 1;
+        renderQuestion();
+      } else {
+        const unanswered = state.answers.filter(a => a === null).length;
+        const message = unanswered
+          ? `還有 ${unanswered} 題未作答，確定要交卷嗎？`
+          : "確定要交卷嗎？";
+        if (window.confirm(message)) submitQuiz(false);
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function submitQuiz(timeUp) {
+      clearInterval(state.timerId);
+      timerEl.classList.add("hidden");
+      quizScreen.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+
+      const scores = { "語文推理": 0, "數量推理": 0, "圖形與空間推理": 0 };
+      let total = 0;
+
+      questions.forEach((q, index) => {
+        if (state.answers[index] === q.answer) {
+          total += 1;
+          scores[q.category] += 1;
+        }
+      });
+
+      const name = state.studentName ? `${escapeHtml(state.studentName)}，` : "";
+      document.getElementById("resultTitle").innerHTML = timeUp
+        ? `${name}時間到，系統已自動交卷`
+        : `${name}測驗完成`;
+      document.getElementById("totalScore").textContent = total;
+      document.getElementById("verbalScore").textContent = `${scores["語文推理"]}/10`;
+      document.getElementById("numberScore").textContent = `${scores["數量推理"]}/10`;
+      document.getElementById("visualScore").textContent = `${scores["圖形與空間推理"]}/10`;
+      document.getElementById("resultComment").textContent = getComment(total);
+
+      const resultData = {
+        name: state.studentName,
+        score: total,
+        categoryScores: scores,
+        finishedAt: new Date().toISOString()
+      };
+      localStorage.setItem("latestQuizResult", JSON.stringify(resultData));
+
+      renderReview(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getComment(total) {
+      if (total >= 27) return "推理正確度非常好。下一階段可以增加題目複雜度並縮短作答時間。";
+      if (total >= 23) return "整體表現穩定，可從錯題中找出較不熟悉的題型。";
+      if (total >= 18) return "基本推理能力正常，建議觀察是題型不熟、粗心，還是時間不足。";
+      if (total >= 13) return "建議先熟悉題型與作答方式，不需急著用分數判定能力。";
+      return "先確認是否因緊張、看不懂規則或時間壓力影響，再分類練習。";
+    }
+
+    function renderReview(onlyWrong) {
+      const list = document.getElementById("reviewList");
+      const letters = ["A", "B", "C", "D"];
+      const rows = questions.map((q, index) => {
+        const userAnswer = state.answers[index];
+        const correct = userAnswer === q.answer;
+        if (onlyWrong && correct) return "";
+
+        const userText = userAnswer === null
+          ? "未作答"
+          : `${letters[userAnswer]}. ${q.options[userAnswer]}`;
+
+        return `
+          <article class="review-item ${correct ? "" : "wrong"}">
+            <h4>第 ${index + 1} 題｜${escapeHtml(q.category)}</h4>
+            <p>${escapeHtml(q.title)}</p>
+            <p class="${correct ? "answer-ok" : "answer-wrong"}">你的答案：${escapeHtml(userText)}</p>
+            <p class="answer-ok">正確答案：${letters[q.answer]}. ${escapeHtml(q.options[q.answer])}</p>
+            <p><strong>解析：</strong>${escapeHtml(q.explanation)}</p>
+          </article>`;
+      }).join("");
+
+      list.innerHTML = rows || `<div class="notice"><strong>太棒了！</strong>這次沒有錯題。</div>`;
+    }
+
+    document.getElementById("startBtn").addEventListener("click", startQuiz);
+    prevBtn.addEventListener("click", goPrevious);
+    nextBtn.addEventListener("click", goNext);
+    document.getElementById("reviewWrongBtn").addEventListener("click", () => renderReview(true));
+    document.getElementById("reviewAllBtn").addEventListener("click", () => renderReview(false));
+    document.getElementById("restartBtn").addEventListener("click", () => {
+      resultScreen.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+      document.getElementById("reviewList").innerHTML = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
