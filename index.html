@@ -293,6 +293,36 @@
 
     .option.selected .option-letter { background: var(--primary); }
 
+
+    .teaching-guide {
+      margin: 0 0 18px;
+      padding: 16px;
+      background: linear-gradient(180deg,#f8faff,#eef3ff);
+      border: 1px solid #cbd8ff;
+      border-radius: 14px;
+    }
+    .teaching-guide h4 { margin: 0 0 8px; }
+    .relation-row {
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:10px;
+      align-items:center;
+      margin:12px 0;
+    }
+    .relation-node {
+      padding:12px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:12px;
+      text-align:center;
+      font-weight:800;
+    }
+    .relation-arrow { color:var(--primary); font-weight:900; }
+    .hint-actions { display:flex; gap:10px; flex-wrap:wrap; margin:0 0 14px; }
+    .hint-box { margin:0 0 16px; padding:14px 16px; background:#fff8e8; border:1px solid #efd79d; border-radius:12px; }
+    .skill-label { display:inline-block; margin-left:6px; padding:5px 11px; background:#f4edff; border-radius:999px; color:#6b3db3; font-weight:800; font-size:14px; }
+    .review-teaching { margin-top:10px; padding:13px; background:#f8faff; border:1px solid #d7e0fa; border-radius:12px; }
+
     .nav-actions {
       display: flex;
       justify-content: space-between;
@@ -401,6 +431,8 @@
       .quiz-head { grid-template-columns: 1fr; }
       .progress-wrap { text-align: left; }
       .question-map { grid-template-columns: repeat(6, 1fr); }
+      .relation-row { grid-template-columns:1fr; }
+      .relation-arrow { transform:rotate(90deg); text-align:center; }
       .nav-actions { position: sticky; bottom: 8px; padding: 10px; background: rgba(255,255,255,.94); border-radius: 14px; box-shadow: 0 8px 24px rgba(31,41,55,.12); backdrop-filter: blur(8px); }
       .nav-actions .btn { min-width: 0; flex: 1; }
     }
@@ -416,7 +448,7 @@
     <section id="startScreen" class="card">
       <div class="hero">
         <h1>國中新生智力測驗<br>模擬題庫 V1</h1>
-        <p>包含語文推理、數量推理及圖形與空間推理。完成後會自動計分，並顯示各類表現與錯題解析。</p>
+        <p>不只練習答題，也會引導孩子先辨認題目關係，再將相同關係套用到答案。</p>
       </div>
 
       <div class="notice">
@@ -528,13 +560,40 @@
       { category:"圖形與空間推理", title:"一個箭頭原本朝上，順時針旋轉 90 度後，會朝向：", options:["上","下","左","右"], answer:3, explanation:"朝上的箭頭順時針轉 90 度會朝右。" }
     ];
 
+    const teachingData = [
+      {skill:"類比關係", focus:"人物與工作場所", left:"醫生（人物）", right:"醫院（工作場所／建築物）", relation:"人物 → 工作場所", method:"先看前半題：醫生是在醫院工作。再把同一種關係套到老師，老師工作的場所是學校。", wrong:{0:"書本是老師使用的工具，不是工作場所。",2:"學生是老師教導的對象，不是工作場所。",3:"黑板是教學工具，不是工作場所。"}},
+      {skill:"類比關係", focus:"生物與活動環境", left:"魚（生物）", right:"水（主要活動環境）", relation:"生物 → 活動環境", method:"魚主要在水中活動，所以要找鳥主要活動的環境，答案是天空。", wrong:{1:"羽毛是身體的一部分。",2:"鳥巢是棲息處，不是主要活動空間。",3:"樹木只是可能停留的地方。"}},
+      {skill:"詞義辨識", focus:"近義詞關係", left:"前三組", right:"意思相近", relation:"詞語 → 詞義關係", method:"先檢查每一組是不是近義詞。前三組意思相近，勇敢與害怕不是近義詞。"},
+      {skill:"分類判斷", focus:"物品類別", left:"鋼琴、小提琴、長笛", right:"都是樂器", relation:"物品 → 類別", method:"先找三個共同類別，再找不屬於該類別的選項。麥克風是收音設備。"},
+      {skill:"成長關係", focus:"幼年與成年", left:"幼苗", right:"大樹", relation:"幼年狀態 → 成年狀態", method:"幼苗長成大樹；相同關係下，幼犬長成成犬。"},
+      {skill:"邏輯判斷", focus:"類別包含", left:"玫瑰", right:"花", relation:"小類別 → 大類別", method:"題目只保證玫瑰都是花，沒有保證玫瑰的顏色。"},
+      {skill:"順序推理", focus:"比較遞移", left:"小華 > 小美", right:"小美 > 小安", relation:"比較關係可串接", method:"把兩個條件串起來：小華 > 小美 > 小安，所以小華最高。"},
+      {skill:"詞語配對", focus:"季節與特徵", left:"季節", right:"典型氣候", relation:"事物 → 常見特徵", method:"冬天最典型的氣候特徵是寒冷。"},
+      {skill:"因果關係", focus:"原因與結果", left:"下大雨", right:"地面積水", relation:"原因 → 結果", method:"找最直接、最合理的結果，不要選不一定發生的情況。"},
+      {skill:"條件邏輯", focus:"必要條件", left:"籃球隊員", right:"必須穿運動鞋", relation:"身分 → 必要條件", method:"既然籃球隊員一定要穿運動鞋，小明沒穿，就不符合籃球隊員條件。"}
+    ];
+
+    function getTeaching(q,index){
+      if(teachingData[index]) return teachingData[index];
+      const skill = q.category === "數量推理" ? "規律推理" : "圖形規律";
+      return {
+        skill,
+        focus:q.category === "數量推理" ? "找出數字之間固定的變化" : "找出圖形、方向、數量或位置的固定變化",
+        left:"先觀察已知例子",
+        right:"找出每一步相同的變化",
+        relation:q.category === "數量推理" ? "前一項 → 固定運算 → 下一項" : "前一圖形 → 固定變化 → 下一圖形",
+        method:q.explanation
+      };
+    }
+
     const state = {
       current: 0,
       answers: Array(questions.length).fill(null),
       remainingSeconds: 25 * 60,
       timerId: null,
       startedAt: null,
-      studentName: ""
+      studentName: "",
+      hintMode: null
     };
 
     const startScreen = document.getElementById("startScreen");
@@ -602,6 +661,7 @@
         btn.setAttribute("aria-label", `前往第 ${index + 1} 題`);
         btn.addEventListener("click", () => {
           state.current = index;
+          state.hintMode = null;
           renderQuestion();
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
@@ -611,6 +671,7 @@
 
     function renderQuestion() {
       const q = questions[state.current];
+      const teach = getTeaching(q, state.current);
       const letters = ["A", "B", "C", "D"];
       let tableHtml = "";
 
@@ -622,10 +683,32 @@
         ).join("")}</tbody></table>`;
       }
 
+      let hintHtml = "";
+      if (state.hintMode === "focus") {
+        hintHtml = `<div class="hint-box"><strong>這題在考什麼？</strong><p>${escapeHtml(teach.focus)}</p></div>`;
+      } else if (state.hintMode === "relation") {
+        hintHtml = `<div class="teaching-guide">
+          <h4>先拆解前半題的關係</h4>
+          <div class="relation-row">
+            <div class="relation-node">${escapeHtml(teach.left)}</div>
+            <div class="relation-arrow">→</div>
+            <div class="relation-node">${escapeHtml(teach.right)}</div>
+          </div>
+          <p><strong>關係類型：</strong>${escapeHtml(teach.relation)}</p>
+          <p>接著把同一種關係套到後半題，不要只找「看起來有關」的答案。</p>
+        </div>`;
+      }
+
       questionContainer.innerHTML = `
         <span class="section-label">${escapeHtml(q.category)}</span>
+        <span class="skill-label">${escapeHtml(teach.skill)}</span>
         <div class="question-number">第 ${state.current + 1} 題／共 ${questions.length} 題</div>
         <h3 class="question-title">${escapeHtml(q.title)}</h3>
+        <div class="hint-actions">
+          <button type="button" id="focusHint" class="btn btn-secondary">這題在考什麼？</button>
+          <button type="button" id="relationHint" class="btn btn-secondary">提示我怎麼找關係</button>
+        </div>
+        ${hintHtml}
         ${tableHtml}
         <div class="options">
           ${q.options.map((option, index) => `
@@ -637,6 +720,13 @@
         </div>
       `;
 
+      document.getElementById("focusHint").addEventListener("click",()=>{
+        state.hintMode = state.hintMode === "focus" ? null : "focus"; renderQuestion();
+      });
+      document.getElementById("relationHint").addEventListener("click",()=>{
+        state.hintMode = state.hintMode === "relation" ? null : "relation"; renderQuestion();
+      });
+
       questionContainer.querySelectorAll(".option").forEach(btn => {
         btn.addEventListener("click", () => {
           state.answers[state.current] = Number(btn.dataset.index);
@@ -646,7 +736,6 @@
 
       prevBtn.disabled = state.current === 0;
       nextBtn.textContent = state.current === questions.length - 1 ? "交卷" : "下一題";
-
       updateProgress();
       updateMap();
     }
@@ -667,6 +756,7 @@
     function goPrevious() {
       if (state.current > 0) {
         state.current -= 1;
+        state.hintMode = null;
         renderQuestion();
       }
     }
@@ -674,6 +764,7 @@
     function goNext() {
       if (state.current < questions.length - 1) {
         state.current += 1;
+        state.hintMode = null;
         renderQuestion();
       } else {
         const unanswered = state.answers.filter(a => a === null).length;
@@ -735,21 +826,25 @@
       const list = document.getElementById("reviewList");
       const letters = ["A", "B", "C", "D"];
       const rows = questions.map((q, index) => {
+        const teach = getTeaching(q,index);
         const userAnswer = state.answers[index];
         const correct = userAnswer === q.answer;
         if (onlyWrong && correct) return "";
 
-        const userText = userAnswer === null
-          ? "未作答"
-          : `${letters[userAnswer]}. ${q.options[userAnswer]}`;
+        const userText = userAnswer === null ? "未作答" : `${letters[userAnswer]}. ${q.options[userAnswer]}`;
+        const wrongText = !correct && userAnswer !== null && teach.wrong && teach.wrong[userAnswer]
+          ? `<div class="review-teaching"><strong>為什麼這個選項不合適？</strong><p>${escapeHtml(teach.wrong[userAnswer])}</p></div>` : "";
 
         return `
           <article class="review-item ${correct ? "" : "wrong"}">
-            <h4>第 ${index + 1} 題｜${escapeHtml(q.category)}</h4>
+            <h4>第 ${index + 1} 題｜${escapeHtml(teach.skill)}</h4>
             <p>${escapeHtml(q.title)}</p>
             <p class="${correct ? "answer-ok" : "answer-wrong"}">你的答案：${escapeHtml(userText)}</p>
             <p class="answer-ok">正確答案：${letters[q.answer]}. ${escapeHtml(q.options[q.answer])}</p>
-            <p><strong>解析：</strong>${escapeHtml(q.explanation)}</p>
+            <div class="review-teaching"><strong>這題在考什麼？</strong><p>${escapeHtml(teach.focus)}</p></div>
+            <div class="review-teaching"><strong>先拆解關係</strong><p>${escapeHtml(teach.left)} → ${escapeHtml(teach.right)}</p><p><strong>關係類型：</strong>${escapeHtml(teach.relation)}</p></div>
+            <div class="review-teaching"><strong>完整推理</strong><p>${escapeHtml(teach.method)}</p></div>
+            ${wrongText}
           </article>`;
       }).join("");
 
